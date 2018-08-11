@@ -1,2 +1,2 @@
-# justsketchme-larry
-Unity 3D Mannequin pose drawing and reference tool
+# JustSketchMe - Interactive 3D models for figure drawing
+## http://justsketch.me
