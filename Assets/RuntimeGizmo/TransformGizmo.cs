@@ -19,7 +19,9 @@ namespace RuntimeGizmos
 		public KeyCode SetScaleType = KeyCode.R;
 		public KeyCode SetSpaceToggle = KeyCode.X;
 
-		Color xColor = new Color(1, 0, 0, 0.8f);
+        public List<int> interactionLayers = new List<int>();
+
+        Color xColor = new Color(1, 0, 0, 0.8f);
 		Color yColor = new Color(0, 1, 0, 0.8f);
 		Color zColor = new Color(0, 0, 1, 0.8f);
 		Color allColor = new Color(.7f, .7f, .7f, 0.8f);
@@ -235,6 +237,8 @@ namespace RuntimeGizmos
 				RaycastHit hitInfo; 
 				if(Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
 				{
+                    if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
+
 					target = hitInfo.transform;
 					SetTargetPivot();
 				}else{
