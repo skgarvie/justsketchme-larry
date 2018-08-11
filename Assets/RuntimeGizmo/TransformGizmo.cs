@@ -19,9 +19,9 @@ namespace RuntimeGizmos
 		public KeyCode SetScaleType = KeyCode.R;
 		public KeyCode SetSpaceToggle = KeyCode.X;
 
-        public List<int> interactionLayers = new List<int>();
+    public List<int> interactionLayers = new List<int>();
 
-        Color xColor = new Color(1, 0, 0, 0.8f);
+    Color xColor = new Color(1, 0, 0, 0.8f);
 		Color yColor = new Color(0, 1, 0, 0.8f);
 		Color zColor = new Color(0, 0, 1, 0.8f);
 		Color allColor = new Color(.7f, .7f, .7f, 0.8f);
@@ -42,7 +42,7 @@ namespace RuntimeGizmos
 		AxisVectors handleSquares = new AxisVectors();
 		AxisVectors circlesLines = new AxisVectors();
 		AxisVectors drawCurrentCirclesLines = new AxisVectors();
-		
+
 		bool isTransforming;
 		float totalScaleAmount;
 		Quaternion totalRotationAmount;
@@ -66,7 +66,7 @@ namespace RuntimeGizmos
 			SelectAxis();
 			GetTarget();
 			if(target == null) return;
-			
+
 			TransformSelected();
 		}
 
@@ -150,7 +150,7 @@ namespace RuntimeGizmos
 				StartCoroutine(TransformSelected(type));
 			}
 		}
-		
+
 		IEnumerator TransformSelected(TransformType type)
 		{
 			isTransforming = true;
@@ -180,13 +180,13 @@ namespace RuntimeGizmos
 					{
 						Vector3 projected = (selectedAxis == Axis.Any) ? transform.right : projectedAxis;
 						float scaleAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * scaleSpeedMultiplier;
-						
+
 						//WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
 						Vector3 localAxis = (space == TransformSpace.Local && selectedAxis != Axis.Any) ? target.InverseTransformDirection(axis) : axis;
-						
+
 						if(selectedAxis == Axis.Any) target.localScale += (ExtVector3.Abs(target.localScale.normalized) * scaleAmount);
 						else target.localScale += (localAxis * scaleAmount);
-					
+
 						totalScaleAmount += scaleAmount;
 					}
 
@@ -227,18 +227,26 @@ namespace RuntimeGizmos
 			}
 			return Vector3.zero;
 		}
-	
+
 		void GetTarget()
 		{
 			if(selectedAxis == Axis.None && Input.GetMouseButtonDown(0))
 			{
 				DestroyTargetPivot();
-			
-				RaycastHit hitInfo; 
+
+				RaycastHit hitInfo;
 				if(Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
 				{
-                    if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
-
+        	if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
+					switch (hitInfo.transform.gameObject.layer) {
+						case 8:
+							type = TransformType.Rotate;
+							break;
+						case 9:
+							type = TransformType.Move;
+							break;
+						default: break;
+					}
 					target = hitInfo.transform;
 					SetTargetPivot();
 				}else{
@@ -246,7 +254,7 @@ namespace RuntimeGizmos
 				}
 			}
 		}
-		
+
 		void SetTargetPivot()
 		{
 			DestroyTargetPivot();
@@ -509,21 +517,21 @@ namespace RuntimeGizmos
 			Vector3 up = axisDirection.normalized * size;
 			Vector3 forward = Vector3.Slerp(up, -up, .5f);
 			Vector3 right = Vector3.Cross(up, forward).normalized * size;
-		
+
 			Matrix4x4 matrix = new Matrix4x4();
-		
+
 			matrix[0] = right.x;
 			matrix[1] = right.y;
 			matrix[2] = right.z;
-		
+
 			matrix[4] = up.x;
 			matrix[5] = up.y;
 			matrix[6] = up.z;
-		
+
 			matrix[8] = forward.x;
 			matrix[9] = forward.y;
 			matrix[10] = forward.z;
-		
+
 			Vector3 lastPoint = origin + matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)));
 			Vector3 nextPoint = Vector3.zero;
 			float multiplier = 360f / circleDetail;
@@ -535,9 +543,9 @@ namespace RuntimeGizmos
 				nextPoint.x = Mathf.Cos((i * multiplier) * Mathf.Deg2Rad);
 				nextPoint.z = Mathf.Sin((i * multiplier) * Mathf.Deg2Rad);
 				nextPoint.y = 0;
-			
+
 				nextPoint = origin + matrix.MultiplyPoint3x4(nextPoint);
-			
+
 				if(!depthTest || plane.GetSide(lastPoint))
 				{
 					resultsBuffer.Add(lastPoint);
