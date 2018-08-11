@@ -26,6 +26,9 @@ public class CameraController : MonoBehaviour {
 			transform.eulerAngles = new Vector3(pitch, yaw, 0f);
 		}
 
+		transform.Translate(Input.GetAxis("Horizontal")* Time.deltaTime * dragSpeed, 0, 0);
+		transform.Translate(0, Input.GetAxis("Vertical")* Time.deltaTime * dragSpeed, 0);
+
 		//Zoom in and out with Mouse Wheel
 		transform.Translate(0, 0, Input.GetAxis("Mouse ScrollWheel") * zoomSpeed, Space.Self);
 	}
