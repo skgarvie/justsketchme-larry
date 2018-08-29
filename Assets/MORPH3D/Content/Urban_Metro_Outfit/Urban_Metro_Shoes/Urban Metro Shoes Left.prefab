@@ -229,8 +229,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4345648823088376}
-  - component: {fileID: 95110452969848104}
-  - component: {fileID: 205894681583773648}
   - component: {fileID: 114793896106635176}
   - component: {fileID: 114410370624265078}
   m_Layer: 0
@@ -4256,24 +4254,6 @@ Transform:
   m_Father: {fileID: 4820376319264916}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &95110452969848104
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1074348852726212}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 1cf1961a039ced24caa352caffa77309, type: 3}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 1
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!114 &114134521421607868
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -4690,32 +4670,3 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.13368341, y: -0.97472787, z: 0.01664567}
     m_Extent: {x: 0.0727121, y: 0.08463323, z: 0.1429539}
   m_DirtyAABB: 0
---- !u!205 &205894681583773648
-LODGroup:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1074348852726212}
-  serializedVersion: 2
-  m_LocalReferencePoint: {x: -0.13368341, y: 0.061093867, z: 0.03580954}
-  m_Size: 0.28593308
-  m_FadeMode: 0
-  m_AnimateCrossFading: 0
-  m_LODs:
-  - screenRelativeHeight: 0.25
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 137489849365416894}
-  - screenRelativeHeight: 0.125
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 137265229468877242}
-  - screenRelativeHeight: 0.0625
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 137893024710886596}
-  - screenRelativeHeight: 0.01
-    fadeTransitionWidth: 0
-    renderers:
-    - renderer: {fileID: 137527014991066688}
-  m_Enabled: 1
