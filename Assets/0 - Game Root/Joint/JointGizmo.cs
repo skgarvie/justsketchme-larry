@@ -6,13 +6,16 @@ public class JointGizmo : MonoBehaviour {
 
 	public GameObject jointMarkerPrefab;
 	private GameObject jointMarker;
+    public Joint jointController;
 
 	void Awake () {
 		jointMarker = Instantiate(jointMarkerPrefab, transform);
 		var collider = gameObject.AddComponent<SphereCollider>();
 		collider.radius = 0.03f;
 		gameObject.layer = LayerMask.NameToLayer( "Joint" );
-	}
+        jointController = jointMarker.GetComponent<Joint>();
+
+    }
 
 	void Start () {
 
@@ -21,4 +24,14 @@ public class JointGizmo : MonoBehaviour {
 	void Update () {
 
 	}
+
+    void OnMouseOver()
+    {
+        jointController.MouseOver();
+    }
+
+    void OnMouseExit()
+    {
+        jointController.MouseExit();   
+    }
 }

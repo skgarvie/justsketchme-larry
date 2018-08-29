@@ -27,7 +27,7 @@ namespace RuntimeGizmos
 		Color allColor = new Color(.7f, .7f, .7f, 0.8f);
 		Color selectedColor = new Color(1, 1, 0, 0.8f);
 
-		float handleLength = .25f;
+		float handleLength = .2f;
 		float triangleSize = .03f;
 		float boxSize = .01f;
 		int circleDetail = 40;
@@ -63,6 +63,7 @@ namespace RuntimeGizmos
 		void Update()
 		{
 			SetSpaceAndType();
+            HitDiffJoint();
 			SelectAxis();
 			GetTarget();
 			if(target == null) return;
@@ -228,34 +229,58 @@ namespace RuntimeGizmos
 			return Vector3.zero;
 		}
 
-		void GetTarget()
-		{
-			if(selectedAxis == Axis.None && Input.GetMouseButtonDown(0))
-			{
-				DestroyTargetPivot();
+        private void HitDiffJoint()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                RaycastHit hitInfo;
+                if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
+                {
+                    if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
 
-				RaycastHit hitInfo;
-				if(Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
-				{
-        	if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
-					switch (hitInfo.transform.gameObject.layer) {
-						case 8:
-							type = TransformType.Rotate;
-							break;
-						case 9:
-							type = TransformType.Move;
-							break;
-						default: break;
-					}
-					target = hitInfo.transform;
-					SetTargetPivot();
-				}else{
-					target = null;
-				}
-			}
-		}
+                    var oldTarget = target;
+                    if(hitInfo.transform != target)
+                    {
+                        if(oldTarget)
+                            oldTarget.GetComponent<JointGizmo>().jointController.DeSelectJoint();
+                        target = hitInfo.transform;
+                        target.GetComponent<JointGizmo>().jointController.SelectJoint();
+                    }
+                }
+            }
+        }
 
-		void SetTargetPivot()
+            void GetTarget()
+            {
+                if (selectedAxis == Axis.None && Input.GetMouseButtonDown(0))
+                {
+                    DestroyTargetPivot();
+
+                    RaycastHit hitInfo;
+                    if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
+                    {
+                        if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
+                        switch (hitInfo.transform.gameObject.layer)
+                        {
+                            case 8:
+                                type = TransformType.Rotate;
+                                break;
+                            case 9:
+                                type = TransformType.Move;
+                                break;
+                            default: break;
+                        }
+                        target = hitInfo.transform;
+                        SetTargetPivot();
+                    }
+                    else
+                    {
+                        target = null;
+                    }
+                }
+            }
+
+            void SetTargetPivot()
 		{
 			DestroyTargetPivot();
 
