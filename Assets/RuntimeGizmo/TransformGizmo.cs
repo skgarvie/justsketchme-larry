@@ -5,229 +5,231 @@ using System.Collections;
 
 namespace RuntimeGizmos
 {
-	[RequireComponent(typeof(Camera))]
-	public class TransformGizmo : MonoBehaviour
-	{
-		public TransformSpace space = TransformSpace.Global;
-		public TransformType type = TransformType.Move;
-		public TransformPivot pivot = TransformPivot.Pivot;
+    [RequireComponent(typeof(Camera))]
+    public class TransformGizmo : MonoBehaviour
+    {
+        public TransformSpace space = TransformSpace.Global;
+        public TransformType type = TransformType.Move;
+        public TransformPivot pivot = TransformPivot.Pivot;
 
-		//These are the same as the unity editor hotkeys
-		public KeyCode SetPivotModeToggle = KeyCode.Z;
-		public KeyCode SetMoveType = KeyCode.W;
-		public KeyCode SetRotateType = KeyCode.E;
-		public KeyCode SetScaleType = KeyCode.R;
-		public KeyCode SetSpaceToggle = KeyCode.X;
+        //These are the same as the unity editor hotkeys
+        public KeyCode SetPivotModeToggle = KeyCode.Z;
+        public KeyCode SetMoveType = KeyCode.W;
+        public KeyCode SetRotateType = KeyCode.E;
+        public KeyCode SetScaleType = KeyCode.R;
+        public KeyCode SetSpaceToggle = KeyCode.X;
 
-    public List<int> interactionLayers = new List<int>();
+        public List<int> interactionLayers = new List<int>();
 
-    Color xColor = new Color(1, 0, 0, 0.8f);
-		Color yColor = new Color(0, 1, 0, 0.8f);
-		Color zColor = new Color(0, 0, 1, 0.8f);
-		Color allColor = new Color(.7f, .7f, .7f, 0.8f);
-		Color selectedColor = new Color(1, 1, 0, 0.8f);
+        Color xColor = new Color(1, 0, 0, 0.8f);
+        Color yColor = new Color(0, 1, 0, 0.8f);
+        Color zColor = new Color(0, 0, 1, 0.8f);
+        Color allColor = new Color(.7f, .7f, .7f, 0.8f);
+        Color selectedColor = new Color(1, 1, 0, 0.8f);
 
-		float handleLength = .2f;
-		float triangleSize = .03f;
-		float boxSize = .01f;
-		int circleDetail = 40;
-		float minSelectedDistanceCheck = .04f;
-		float moveSpeedMultiplier = 1f;
-		float scaleSpeedMultiplier = 1f;
-		float rotateSpeedMultiplier = 200f;
-		float allRotateSpeedMultiplier = 20f;
+        float handleLength = .2f;
+        float triangleSize = .03f;
+        float boxSize = .01f;
+        int circleDetail = 40;
+        float minSelectedDistanceCheck = .04f;
+        float moveSpeedMultiplier = 1f;
+        float scaleSpeedMultiplier = 1f;
+        float rotateSpeedMultiplier = 200f;
+        float allRotateSpeedMultiplier = 20f;
 
-		AxisVectors handleLines = new AxisVectors();
-		AxisVectors handleTriangles = new AxisVectors();
-		AxisVectors handleSquares = new AxisVectors();
-		AxisVectors circlesLines = new AxisVectors();
-		AxisVectors drawCurrentCirclesLines = new AxisVectors();
+        AxisVectors handleLines = new AxisVectors();
+        AxisVectors handleTriangles = new AxisVectors();
+        AxisVectors handleSquares = new AxisVectors();
+        AxisVectors circlesLines = new AxisVectors();
+        AxisVectors drawCurrentCirclesLines = new AxisVectors();
 
-		bool isTransforming;
-		float totalScaleAmount;
-		Quaternion totalRotationAmount;
-		Axis selectedAxis = Axis.None;
-		AxisInfo axisInfo;
-		Transform target;
-		Camera myCamera;
+        bool isTransforming;
+        float totalScaleAmount;
+        Quaternion totalRotationAmount;
+        Axis selectedAxis = Axis.None;
+        AxisInfo axisInfo;
+        Transform target;
+        Camera myCamera;
 
-		static Material lineMaterial;
-		static Transform pivotTransform;
+        static Material lineMaterial;
+        static Transform pivotTransform;
 
-		void Awake()
-		{
-			myCamera = GetComponent<Camera>();
-			SetMaterial();
-		}
+        void Awake()
+        {
+            myCamera = GetComponent<Camera>();
+            SetMaterial();
+        }
 
-		void Update()
-		{
-			SetSpaceAndType();
+        void Update()
+        {
+            SetSpaceAndType();
             HitDiffJoint();
-			SelectAxis();
-			GetTarget();
-			if(target == null) return;
+            SelectAxis();
+            GetTarget();
+            if (target == null) return;
 
-			TransformSelected();
-		}
+            TransformSelected();
+        }
 
-		void LateUpdate()
-		{
-			if(target == null) return;
+        void LateUpdate()
+        {
+            if (target == null) return;
 
-			//We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
-			SetAxisInfo();
-			SetLines();
-		}
+            //We run this in lateupdate since coroutines run after update and we want our gizmos to have the updated target transform position after TransformSelected()
+            SetAxisInfo();
+            SetLines();
+        }
 
-		void OnPostRender()
-		{
-			if(target == null) return;
+        void OnPostRender()
+        {
+            if (target == null) return;
 
-			lineMaterial.SetPass(0);
+            lineMaterial.SetPass(0);
 
-			Color xColor = (selectedAxis == Axis.X) ? selectedColor : this.xColor;
-			Color yColor = (selectedAxis == Axis.Y) ? selectedColor : this.yColor;
-			Color zColor = (selectedAxis == Axis.Z) ? selectedColor : this.zColor;
-			Color allColor = (selectedAxis == Axis.Any) ? selectedColor : this.allColor;
+            Color xColor = (selectedAxis == Axis.X) ? selectedColor : this.xColor;
+            Color yColor = (selectedAxis == Axis.Y) ? selectedColor : this.yColor;
+            Color zColor = (selectedAxis == Axis.Z) ? selectedColor : this.zColor;
+            Color allColor = (selectedAxis == Axis.Any) ? selectedColor : this.allColor;
 
-			DrawLines(handleLines.x, xColor);
-			DrawLines(handleLines.y, yColor);
-			DrawLines(handleLines.z, zColor);
+            DrawLines(handleLines.x, xColor);
+            DrawLines(handleLines.y, yColor);
+            DrawLines(handleLines.z, zColor);
 
-			DrawTriangles(handleTriangles.x, xColor);
-			DrawTriangles(handleTriangles.y, yColor);
-			DrawTriangles(handleTriangles.z, zColor);
+            DrawTriangles(handleTriangles.x, xColor);
+            DrawTriangles(handleTriangles.y, yColor);
+            DrawTriangles(handleTriangles.z, zColor);
 
-			DrawSquares(handleSquares.x, xColor);
-			DrawSquares(handleSquares.y, yColor);
-			DrawSquares(handleSquares.z, zColor);
-			DrawSquares(handleSquares.all, allColor);
+            DrawSquares(handleSquares.x, xColor);
+            DrawSquares(handleSquares.y, yColor);
+            DrawSquares(handleSquares.z, zColor);
+            DrawSquares(handleSquares.all, allColor);
 
-			AxisVectors rotationAxisVector = circlesLines;
-			if(isTransforming && space == TransformSpace.Global && type == TransformType.Rotate)
-			{
-				rotationAxisVector = drawCurrentCirclesLines;
+            AxisVectors rotationAxisVector = circlesLines;
+            if (isTransforming && space == TransformSpace.Global && type == TransformType.Rotate)
+            {
+                rotationAxisVector = drawCurrentCirclesLines;
 
-				AxisInfo axisInfo = new AxisInfo();
-				axisInfo.xDirection = totalRotationAmount * Vector3.right;
-				axisInfo.yDirection = totalRotationAmount * Vector3.up;
-				axisInfo.zDirection = totalRotationAmount * Vector3.forward;
-				SetCircles(axisInfo, drawCurrentCirclesLines);
-			}
+                AxisInfo axisInfo = new AxisInfo();
+                axisInfo.xDirection = totalRotationAmount * Vector3.right;
+                axisInfo.yDirection = totalRotationAmount * Vector3.up;
+                axisInfo.zDirection = totalRotationAmount * Vector3.forward;
+                SetCircles(axisInfo, drawCurrentCirclesLines);
+            }
 
-			DrawCircles(rotationAxisVector.x, xColor);
-			DrawCircles(rotationAxisVector.y, yColor);
-			DrawCircles(rotationAxisVector.z, zColor);
-			DrawCircles(rotationAxisVector.all, allColor);
-		}
+            DrawCircles(rotationAxisVector.x, xColor);
+            DrawCircles(rotationAxisVector.y, yColor);
+            DrawCircles(rotationAxisVector.z, zColor);
+            DrawCircles(rotationAxisVector.all, allColor);
+        }
 
-		void SetSpaceAndType()
-		{
-			if(Input.GetKeyDown(SetMoveType)) type = TransformType.Move;
-			else if(Input.GetKeyDown(SetRotateType)) type = TransformType.Rotate;
-			else if(Input.GetKeyDown(SetScaleType)) type = TransformType.Scale;
+        void SetSpaceAndType()
+        {
+            if (Input.GetKeyDown(SetMoveType)) type = TransformType.Move;
+            else if (Input.GetKeyDown(SetRotateType)) type = TransformType.Rotate;
+            else if (Input.GetKeyDown(SetScaleType)) type = TransformType.Scale;
 
-			if(Input.GetKeyDown(SetPivotModeToggle))
-			{
-				if(pivot == TransformPivot.Pivot) pivot = TransformPivot.Center;
-				else if(pivot == TransformPivot.Center) pivot = TransformPivot.Pivot;
-				SetTargetPivot();
-			}
+            if (Input.GetKeyDown(SetPivotModeToggle))
+            {
+                if (pivot == TransformPivot.Pivot) pivot = TransformPivot.Center;
+                else if (pivot == TransformPivot.Center) pivot = TransformPivot.Pivot;
+                SetTargetPivot();
+            }
 
-			if(Input.GetKeyDown(SetSpaceToggle))
-			{
-				if(space == TransformSpace.Global) space = TransformSpace.Local;
-				else if(space == TransformSpace.Local) space = TransformSpace.Global;
-			}
+            if (Input.GetKeyDown(SetSpaceToggle))
+            {
+                if (space == TransformSpace.Global) space = TransformSpace.Local;
+                else if (space == TransformSpace.Local) space = TransformSpace.Global;
+            }
 
-			if(type == TransformType.Scale) space = TransformSpace.Local; //Only support local scale
-		}
+            if (type == TransformType.Scale) space = TransformSpace.Local; //Only support local scale
+        }
 
-		void TransformSelected()
-		{
-			if(selectedAxis != Axis.None && Input.GetMouseButtonDown(0))
-			{
-				StartCoroutine(TransformSelected(type));
-			}
-		}
+        void TransformSelected()
+        {
+            if (selectedAxis != Axis.None && Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(TransformSelected(type));
+            }
+        }
 
-		IEnumerator TransformSelected(TransformType type)
-		{
-			isTransforming = true;
-			totalScaleAmount = 0;
-			totalRotationAmount = Quaternion.identity;
+        IEnumerator TransformSelected(TransformType type)
+        {
+            isTransforming = true;
+            totalScaleAmount = 0;
+            totalRotationAmount = Quaternion.identity;
 
-			Vector3 originalTargetPosition = target.position;
-			Vector3 planeNormal = (transform.position - target.position).normalized;
-			Vector3 axis = GetSelectedAxisDirection();
-			Vector3 projectedAxis = Vector3.ProjectOnPlane(axis, planeNormal).normalized;
-			Vector3 previousMousePosition = Vector3.zero;
+            Vector3 originalTargetPosition = target.position;
+            Vector3 planeNormal = (transform.position - target.position).normalized;
+            Vector3 axis = GetSelectedAxisDirection();
+            Vector3 projectedAxis = Vector3.ProjectOnPlane(axis, planeNormal).normalized;
+            Vector3 previousMousePosition = Vector3.zero;
 
-			while(!Input.GetMouseButtonUp(0))
-			{
-				Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
-				Vector3 mousePosition = Geometry.LinePlaneIntersect(mouseRay.origin, mouseRay.direction, originalTargetPosition, planeNormal);
+            while (!Input.GetMouseButtonUp(0))
+            {
+                Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
+                Vector3 mousePosition = Geometry.LinePlaneIntersect(mouseRay.origin, mouseRay.direction, originalTargetPosition, planeNormal);
 
-				if(previousMousePosition != Vector3.zero && mousePosition != Vector3.zero)
-				{
-					if(type == TransformType.Move)
-					{
-						float moveAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projectedAxis) * moveSpeedMultiplier;
-						target.Translate(axis * moveAmount, Space.World);
-					}
+                if (previousMousePosition != Vector3.zero && mousePosition != Vector3.zero)
+                {
+                    if (type == TransformType.Move)
+                    {
+                        float moveAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projectedAxis) * moveSpeedMultiplier;
+                        target.Translate(axis * moveAmount, Space.World);
+                    }
 
-					if(type == TransformType.Scale)
-					{
-						Vector3 projected = (selectedAxis == Axis.Any) ? transform.right : projectedAxis;
-						float scaleAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * scaleSpeedMultiplier;
+                    if (type == TransformType.Scale)
+                    {
+                        Vector3 projected = (selectedAxis == Axis.Any) ? transform.right : projectedAxis;
+                        float scaleAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * scaleSpeedMultiplier;
 
-						//WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
-						Vector3 localAxis = (space == TransformSpace.Local && selectedAxis != Axis.Any) ? target.InverseTransformDirection(axis) : axis;
+                        //WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
+                        Vector3 localAxis = (space == TransformSpace.Local && selectedAxis != Axis.Any) ? target.InverseTransformDirection(axis) : axis;
 
-						if(selectedAxis == Axis.Any) target.localScale += (ExtVector3.Abs(target.localScale.normalized) * scaleAmount);
-						else target.localScale += (localAxis * scaleAmount);
+                        if (selectedAxis == Axis.Any) target.localScale += (ExtVector3.Abs(target.localScale.normalized) * scaleAmount);
+                        else target.localScale += (localAxis * scaleAmount);
 
-						totalScaleAmount += scaleAmount;
-					}
+                        totalScaleAmount += scaleAmount;
+                    }
 
-					if(type == TransformType.Rotate)
-					{
-						if(selectedAxis == Axis.Any)
-						{
-							Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
-							target.Rotate(rotation * allRotateSpeedMultiplier, Space.World);
-							totalRotationAmount *= Quaternion.Euler(rotation * allRotateSpeedMultiplier);
-						}else{
-							Vector3 projected = (selectedAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
-							float rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
-							target.Rotate(axis, rotateAmount, Space.World);
-							totalRotationAmount *= Quaternion.Euler(axis * rotateAmount);
-						}
-					}
-				}
+                    if (type == TransformType.Rotate)
+                    {
+                        if (selectedAxis == Axis.Any)
+                        {
+                            Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
+                            target.Rotate(rotation * allRotateSpeedMultiplier, Space.World);
+                            totalRotationAmount *= Quaternion.Euler(rotation * allRotateSpeedMultiplier);
+                        }
+                        else
+                        {
+                            Vector3 projected = (selectedAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
+                            float rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
+                            target.Rotate(axis, rotateAmount, Space.World);
+                            totalRotationAmount *= Quaternion.Euler(axis * rotateAmount);
+                        }
+                    }
+                }
 
-				previousMousePosition = mousePosition;
+                previousMousePosition = mousePosition;
 
-				yield return null;
-			}
+                yield return null;
+            }
 
-			totalRotationAmount = Quaternion.identity;
-			totalScaleAmount = 0;
-			isTransforming = false;
-		}
+            totalRotationAmount = Quaternion.identity;
+            totalScaleAmount = 0;
+            isTransforming = false;
+        }
 
-		Vector3 GetSelectedAxisDirection()
-		{
-			if(selectedAxis != Axis.None)
-			{
-				if(selectedAxis == Axis.X) return axisInfo.xDirection;
-				if(selectedAxis == Axis.Y) return axisInfo.yDirection;
-				if(selectedAxis == Axis.Z) return axisInfo.zDirection;
-				if(selectedAxis == Axis.Any) return Vector3.one;
-			}
-			return Vector3.zero;
-		}
+        Vector3 GetSelectedAxisDirection()
+        {
+            if (selectedAxis != Axis.None)
+            {
+                if (selectedAxis == Axis.X) return axisInfo.xDirection;
+                if (selectedAxis == Axis.Y) return axisInfo.yDirection;
+                if (selectedAxis == Axis.Z) return axisInfo.zDirection;
+                if (selectedAxis == Axis.Any) return Vector3.one;
+            }
+            return Vector3.zero;
+        }
 
         private void HitDiffJoint()
         {
@@ -240,415 +242,427 @@ namespace RuntimeGizmos
                     if (hitInfo.transform.gameObject.layer == 9) return;
 
                     var oldTarget = target;
-                    if(hitInfo.transform != target)
+                    if (hitInfo.transform != target)
                     {
-                        if(oldTarget && oldTarget.GetComponent<JointGizmo>())
-                            oldTarget.GetComponent<JointGizmo>().jointController.DeSelectJoint();
                         target = hitInfo.transform;
-                        if(target.GetComponent<JointGizmo>())
-                            target.GetComponent<JointGizmo>().jointController.SelectJoint();
+                        HighlightSelectedGizmo(oldTarget, target);
                     }
                 }
             }
         }
 
-            void GetTarget()
+        void GetTarget()
+        {
+            if (selectedAxis == Axis.None && Input.GetMouseButtonDown(0))
             {
-                if (selectedAxis == Axis.None && Input.GetMouseButtonDown(0))
-                {
-                    DestroyTargetPivot();
+                DestroyTargetPivot();
 
-                    RaycastHit hitInfo;
-                    if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
+                RaycastHit hitInfo;
+                if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
+                {
+                    if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
+                    switch (hitInfo.transform.gameObject.layer)
                     {
-                        if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
-                        switch (hitInfo.transform.gameObject.layer)
-                        {
-                            case 8:
-                                type = TransformType.Rotate;
-                                break;
-                            case 9:
-                                type = TransformType.Move;
-                                break;
-                            default: break;
-                        }
-                        target = hitInfo.transform;
-                        SetTargetPivot();
+                        case 8:
+                            type = TransformType.Rotate;
+                            break;
+                        case 9:
+                            type = TransformType.Move;
+                            break;
+                        default: break;
                     }
-                    else
-                    {
-                        target = null;
-                    }
+
+                    var oldTarget = target;
+                    target = hitInfo.transform;
+                    HighlightSelectedGizmo(oldTarget, target);
+
+                    SetTargetPivot();
+                }
+                else
+                {
+                    target = null;
                 }
             }
+        }
 
-            void SetTargetPivot()
-		{
-			DestroyTargetPivot();
 
-			if(target == null) return;
+        private void HighlightSelectedGizmo(Transform oldTarget = null, Transform newTarget = null)
+        {
+            if (oldTarget)
+                oldTarget.GetComponent<InteractionGizmo>().highlighter.DeSelect();
+            if (newTarget)
+                newTarget.GetComponent<InteractionGizmo>().highlighter.Select();
+        }
 
-			if(pivot == TransformPivot.Pivot)
-			{
-				//The target position is the pivot, so no need to do anything.
-				return;
-			}
-			else if(pivot == TransformPivot.Center)
-			{
-				Renderer targetRenderer = target.GetComponent<Renderer>();
-				if(targetRenderer == null)
-				{
-	#if UNITY_EDITOR
-					Debug.LogWarning("Runtime TransformGizmo cannot use Pivot Center mode since there is no Renderer on the selected object.");
-	#endif
-					return;
-				}
+        void SetTargetPivot()
+        {
+            DestroyTargetPivot();
 
-				if(pivotTransform == null)
-				{
-					pivotTransform = new GameObject("TemporaryTransformGizmoPivot").transform;
-				}
+            if (target == null) return;
 
-				pivotTransform.position = targetRenderer.bounds.center;
-				pivotTransform.rotation = target.rotation;
+            if (pivot == TransformPivot.Pivot)
+            {
+                //The target position is the pivot, so no need to do anything.
+                return;
+            }
+            else if (pivot == TransformPivot.Center)
+            {
+                Renderer targetRenderer = target.GetComponent<Renderer>();
+                if (targetRenderer == null)
+                {
+#if UNITY_EDITOR
+                    Debug.LogWarning("Runtime TransformGizmo cannot use Pivot Center mode since there is no Renderer on the selected object.");
+#endif
+                    return;
+                }
 
-				pivotTransform.SetParent(target.parent, true);
+                if (pivotTransform == null)
+                {
+                    pivotTransform = new GameObject("TemporaryTransformGizmoPivot").transform;
+                }
 
-				target.SetParent(pivotTransform, true);
-				target = pivotTransform;
-			}
-		}
+                pivotTransform.position = targetRenderer.bounds.center;
+                pivotTransform.rotation = target.rotation;
 
-		void DestroyTargetPivot()
-		{
-			if(pivotTransform != null)
-			{
-				if(pivotTransform.childCount > 0)
-				{
-					target = pivotTransform.GetChild(0);
-					target.SetParent(pivotTransform.parent, true);
-				}else{
-					target = null;
-				}
+                pivotTransform.SetParent(target.parent, true);
 
-				GameObject.Destroy(pivotTransform.gameObject);
-				pivotTransform = null; //Need to do this so we can see right away that its destroyed, else we wont know until next frame.
-			}
-		}
+                target.SetParent(pivotTransform, true);
+                target = pivotTransform;
+            }
+        }
 
-		AxisVectors selectedLinesBuffer = new AxisVectors();
-		void SelectAxis()
-		{
-			if(!Input.GetMouseButtonDown(0)) return;
-			selectedAxis = Axis.None;
+        void DestroyTargetPivot()
+        {
+            if (pivotTransform != null)
+            {
+                if (pivotTransform.childCount > 0)
+                {
+                    target = pivotTransform.GetChild(0);
+                    target.SetParent(pivotTransform.parent, true);
+                }
+                else
+                {
+                    target = null;
+                }
 
-			float xClosestDistance = float.MaxValue;
-			float yClosestDistance = float.MaxValue;
-			float zClosestDistance = float.MaxValue;
-			float allClosestDistance = float.MaxValue;
-			float minSelectedDistanceCheck = this.minSelectedDistanceCheck * GetDistanceMultiplier();
+                GameObject.Destroy(pivotTransform.gameObject);
+                pivotTransform = null; //Need to do this so we can see right away that its destroyed, else we wont know until next frame.
+            }
+        }
 
-			if(type == TransformType.Move || type == TransformType.Scale)
-			{
-				selectedLinesBuffer.Clear();
-				selectedLinesBuffer.Add(handleLines);
-				if(type == TransformType.Move) selectedLinesBuffer.Add(handleTriangles);
-				else if(type == TransformType.Scale) selectedLinesBuffer.Add(handleSquares);
+        AxisVectors selectedLinesBuffer = new AxisVectors();
+        void SelectAxis()
+        {
+            if (!Input.GetMouseButtonDown(0)) return;
+            selectedAxis = Axis.None;
 
-				xClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.x);
-				yClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.y);
-				zClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.z);
-				allClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.all);
-			}
-			else if(type == TransformType.Rotate)
-			{
-				xClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.x);
-				yClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.y);
-				zClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.z);
-				allClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.all);
-			}
+            float xClosestDistance = float.MaxValue;
+            float yClosestDistance = float.MaxValue;
+            float zClosestDistance = float.MaxValue;
+            float allClosestDistance = float.MaxValue;
+            float minSelectedDistanceCheck = this.minSelectedDistanceCheck * GetDistanceMultiplier();
 
-			if(type == TransformType.Scale && allClosestDistance <= minSelectedDistanceCheck) selectedAxis = Axis.Any;
-			else if(xClosestDistance <= minSelectedDistanceCheck && xClosestDistance <= yClosestDistance && xClosestDistance <= zClosestDistance) selectedAxis = Axis.X;
-			else if(yClosestDistance <= minSelectedDistanceCheck && yClosestDistance <= xClosestDistance && yClosestDistance <= zClosestDistance) selectedAxis = Axis.Y;
-			else if(zClosestDistance <= minSelectedDistanceCheck && zClosestDistance <= xClosestDistance && zClosestDistance <= yClosestDistance) selectedAxis = Axis.Z;
-			else if(type == TransformType.Rotate && target != null)
-			{
-				Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
-				Vector3 mousePlaneHit = Geometry.LinePlaneIntersect(mouseRay.origin, mouseRay.direction, target.position, (transform.position - target.position).normalized);
-				if((target.position - mousePlaneHit).sqrMagnitude <= (handleLength * GetDistanceMultiplier()).Squared()) selectedAxis = Axis.Any;
-			}
-		}
+            if (type == TransformType.Move || type == TransformType.Scale)
+            {
+                selectedLinesBuffer.Clear();
+                selectedLinesBuffer.Add(handleLines);
+                if (type == TransformType.Move) selectedLinesBuffer.Add(handleTriangles);
+                else if (type == TransformType.Scale) selectedLinesBuffer.Add(handleSquares);
 
-		float ClosestDistanceFromMouseToLines(List<Vector3> lines)
-		{
-			Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
+                xClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.x);
+                yClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.y);
+                zClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.z);
+                allClosestDistance = ClosestDistanceFromMouseToLines(selectedLinesBuffer.all);
+            }
+            else if (type == TransformType.Rotate)
+            {
+                xClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.x);
+                yClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.y);
+                zClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.z);
+                allClosestDistance = ClosestDistanceFromMouseToLines(circlesLines.all);
+            }
 
-			float closestDistance = float.MaxValue;
-			for(int i = 0; i < lines.Count; i += 2)
-			{
-				IntersectPoints points = Geometry.ClosestPointsOnSegmentToLine(lines[i], lines[i + 1], mouseRay.origin, mouseRay.direction);
-				float distance = Vector3.Distance(points.first, points.second);
-				if(distance < closestDistance)
-				{
-					closestDistance = distance;
-				}
-			}
-			return closestDistance;
-		}
+            if (type == TransformType.Scale && allClosestDistance <= minSelectedDistanceCheck) selectedAxis = Axis.Any;
+            else if (xClosestDistance <= minSelectedDistanceCheck && xClosestDistance <= yClosestDistance && xClosestDistance <= zClosestDistance) selectedAxis = Axis.X;
+            else if (yClosestDistance <= minSelectedDistanceCheck && yClosestDistance <= xClosestDistance && yClosestDistance <= zClosestDistance) selectedAxis = Axis.Y;
+            else if (zClosestDistance <= minSelectedDistanceCheck && zClosestDistance <= xClosestDistance && zClosestDistance <= yClosestDistance) selectedAxis = Axis.Z;
+            else if (type == TransformType.Rotate && target != null)
+            {
+                Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
+                Vector3 mousePlaneHit = Geometry.LinePlaneIntersect(mouseRay.origin, mouseRay.direction, target.position, (transform.position - target.position).normalized);
+                if ((target.position - mousePlaneHit).sqrMagnitude <= (handleLength * GetDistanceMultiplier()).Squared()) selectedAxis = Axis.Any;
+            }
+        }
 
-		void SetAxisInfo()
-		{
-			float size = handleLength * GetDistanceMultiplier();
-			axisInfo.Set(target, size, space);
+        float ClosestDistanceFromMouseToLines(List<Vector3> lines)
+        {
+            Ray mouseRay = myCamera.ScreenPointToRay(Input.mousePosition);
 
-			if(isTransforming && type == TransformType.Scale)
-			{
-				if(selectedAxis == Axis.Any) axisInfo.Set(target, size + totalScaleAmount, space);
-				if(selectedAxis == Axis.X) axisInfo.xAxisEnd += (axisInfo.xDirection * totalScaleAmount);
-				if(selectedAxis == Axis.Y) axisInfo.yAxisEnd += (axisInfo.yDirection * totalScaleAmount);
-				if(selectedAxis == Axis.Z) axisInfo.zAxisEnd += (axisInfo.zDirection * totalScaleAmount);
-			}
-		}
+            float closestDistance = float.MaxValue;
+            for (int i = 0; i < lines.Count; i += 2)
+            {
+                IntersectPoints points = Geometry.ClosestPointsOnSegmentToLine(lines[i], lines[i + 1], mouseRay.origin, mouseRay.direction);
+                float distance = Vector3.Distance(points.first, points.second);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                }
+            }
+            return closestDistance;
+        }
 
-		//This helps keep the size consistent no matter how far we are from it.
-		float GetDistanceMultiplier()
-		{
-			if(target == null) return 0f;
-			return Mathf.Max(.01f, Mathf.Abs(ExtVector3.MagnitudeInDirection(target.position - transform.position, myCamera.transform.forward)));
-		}
+        void SetAxisInfo()
+        {
+            float size = handleLength * GetDistanceMultiplier();
+            axisInfo.Set(target, size, space);
 
-		void SetLines()
-		{
-			SetHandleLines();
-			SetHandleTriangles();
-			SetHandleSquares();
-			SetCircles(axisInfo, circlesLines);
-		}
+            if (isTransforming && type == TransformType.Scale)
+            {
+                if (selectedAxis == Axis.Any) axisInfo.Set(target, size + totalScaleAmount, space);
+                if (selectedAxis == Axis.X) axisInfo.xAxisEnd += (axisInfo.xDirection * totalScaleAmount);
+                if (selectedAxis == Axis.Y) axisInfo.yAxisEnd += (axisInfo.yDirection * totalScaleAmount);
+                if (selectedAxis == Axis.Z) axisInfo.zAxisEnd += (axisInfo.zDirection * totalScaleAmount);
+            }
+        }
 
-		void SetHandleLines()
-		{
-			handleLines.Clear();
+        //This helps keep the size consistent no matter how far we are from it.
+        float GetDistanceMultiplier()
+        {
+            if (target == null) return 0f;
+            return Mathf.Max(.01f, Mathf.Abs(ExtVector3.MagnitudeInDirection(target.position - transform.position, myCamera.transform.forward)));
+        }
 
-			if(type == TransformType.Move || type == TransformType.Scale)
-			{
-				handleLines.x.Add(target.position);
-				handleLines.x.Add(axisInfo.xAxisEnd);
-				handleLines.y.Add(target.position);
-				handleLines.y.Add(axisInfo.yAxisEnd);
-				handleLines.z.Add(target.position);
-				handleLines.z.Add(axisInfo.zAxisEnd);
-			}
-		}
+        void SetLines()
+        {
+            SetHandleLines();
+            SetHandleTriangles();
+            SetHandleSquares();
+            SetCircles(axisInfo, circlesLines);
+        }
 
-		void SetHandleTriangles()
-		{
-			handleTriangles.Clear();
+        void SetHandleLines()
+        {
+            handleLines.Clear();
 
-			if(type == TransformType.Move)
-			{
-				float triangleLength = triangleSize * GetDistanceMultiplier();
-				AddTriangles(axisInfo.xAxisEnd, axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, triangleLength, handleTriangles.x);
-				AddTriangles(axisInfo.yAxisEnd, axisInfo.yDirection, axisInfo.xDirection, axisInfo.zDirection, triangleLength, handleTriangles.y);
-				AddTriangles(axisInfo.zAxisEnd, axisInfo.zDirection, axisInfo.yDirection, axisInfo.xDirection, triangleLength, handleTriangles.z);
-			}
-		}
+            if (type == TransformType.Move || type == TransformType.Scale)
+            {
+                handleLines.x.Add(target.position);
+                handleLines.x.Add(axisInfo.xAxisEnd);
+                handleLines.y.Add(target.position);
+                handleLines.y.Add(axisInfo.yAxisEnd);
+                handleLines.z.Add(target.position);
+                handleLines.z.Add(axisInfo.zAxisEnd);
+            }
+        }
 
-		void AddTriangles(Vector3 axisEnd, Vector3 axisDirection, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size, List<Vector3> resultsBuffer)
-		{
-			Vector3 endPoint = axisEnd + (axisDirection * (size * 2f));
-			Square baseSquare = GetBaseSquare(axisEnd, axisOtherDirection1, axisOtherDirection2, size / 2f);
+        void SetHandleTriangles()
+        {
+            handleTriangles.Clear();
 
-			resultsBuffer.Add(baseSquare.bottomLeft);
-			resultsBuffer.Add(baseSquare.topLeft);
-			resultsBuffer.Add(baseSquare.topRight);
-			resultsBuffer.Add(baseSquare.topLeft);
-			resultsBuffer.Add(baseSquare.bottomRight);
-			resultsBuffer.Add(baseSquare.topRight);
+            if (type == TransformType.Move)
+            {
+                float triangleLength = triangleSize * GetDistanceMultiplier();
+                AddTriangles(axisInfo.xAxisEnd, axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, triangleLength, handleTriangles.x);
+                AddTriangles(axisInfo.yAxisEnd, axisInfo.yDirection, axisInfo.xDirection, axisInfo.zDirection, triangleLength, handleTriangles.y);
+                AddTriangles(axisInfo.zAxisEnd, axisInfo.zDirection, axisInfo.yDirection, axisInfo.xDirection, triangleLength, handleTriangles.z);
+            }
+        }
 
-			for(int i = 0; i < 4; i++)
-			{
-				resultsBuffer.Add(baseSquare[i]);
-				resultsBuffer.Add(baseSquare[i + 1]);
-				resultsBuffer.Add(endPoint);
-			}
-		}
+        void AddTriangles(Vector3 axisEnd, Vector3 axisDirection, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size, List<Vector3> resultsBuffer)
+        {
+            Vector3 endPoint = axisEnd + (axisDirection * (size * 2f));
+            Square baseSquare = GetBaseSquare(axisEnd, axisOtherDirection1, axisOtherDirection2, size / 2f);
 
-		void SetHandleSquares()
-		{
-			handleSquares.Clear();
+            resultsBuffer.Add(baseSquare.bottomLeft);
+            resultsBuffer.Add(baseSquare.topLeft);
+            resultsBuffer.Add(baseSquare.topRight);
+            resultsBuffer.Add(baseSquare.topLeft);
+            resultsBuffer.Add(baseSquare.bottomRight);
+            resultsBuffer.Add(baseSquare.topRight);
 
-			if(type == TransformType.Scale)
-			{
-				float boxLength = boxSize * GetDistanceMultiplier();
-				AddSquares(axisInfo.xAxisEnd, axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, boxLength, handleSquares.x);
-				AddSquares(axisInfo.yAxisEnd, axisInfo.yDirection, axisInfo.xDirection, axisInfo.zDirection, boxLength, handleSquares.y);
-				AddSquares(axisInfo.zAxisEnd, axisInfo.zDirection, axisInfo.xDirection, axisInfo.yDirection, boxLength, handleSquares.z);
-				AddSquares(target.position - (axisInfo.xDirection * boxLength), axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, boxLength, handleSquares.all);
-			}
-		}
+            for (int i = 0; i < 4; i++)
+            {
+                resultsBuffer.Add(baseSquare[i]);
+                resultsBuffer.Add(baseSquare[i + 1]);
+                resultsBuffer.Add(endPoint);
+            }
+        }
 
-		void AddSquares(Vector3 axisEnd, Vector3 axisDirection, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size, List<Vector3> resultsBuffer)
-		{
-			Square baseSquare = GetBaseSquare(axisEnd, axisOtherDirection1, axisOtherDirection2, size);
-			Square baseSquareEnd = GetBaseSquare(axisEnd + (axisDirection * (size * 2f)), axisOtherDirection1, axisOtherDirection2, size);
+        void SetHandleSquares()
+        {
+            handleSquares.Clear();
 
-			resultsBuffer.Add(baseSquare.bottomLeft);
-			resultsBuffer.Add(baseSquare.topLeft);
-			resultsBuffer.Add(baseSquare.bottomRight);
-			resultsBuffer.Add(baseSquare.topRight);
+            if (type == TransformType.Scale)
+            {
+                float boxLength = boxSize * GetDistanceMultiplier();
+                AddSquares(axisInfo.xAxisEnd, axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, boxLength, handleSquares.x);
+                AddSquares(axisInfo.yAxisEnd, axisInfo.yDirection, axisInfo.xDirection, axisInfo.zDirection, boxLength, handleSquares.y);
+                AddSquares(axisInfo.zAxisEnd, axisInfo.zDirection, axisInfo.xDirection, axisInfo.yDirection, boxLength, handleSquares.z);
+                AddSquares(target.position - (axisInfo.xDirection * boxLength), axisInfo.xDirection, axisInfo.yDirection, axisInfo.zDirection, boxLength, handleSquares.all);
+            }
+        }
 
-			resultsBuffer.Add(baseSquareEnd.bottomLeft);
-			resultsBuffer.Add(baseSquareEnd.topLeft);
-			resultsBuffer.Add(baseSquareEnd.bottomRight);
-			resultsBuffer.Add(baseSquareEnd.topRight);
+        void AddSquares(Vector3 axisEnd, Vector3 axisDirection, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size, List<Vector3> resultsBuffer)
+        {
+            Square baseSquare = GetBaseSquare(axisEnd, axisOtherDirection1, axisOtherDirection2, size);
+            Square baseSquareEnd = GetBaseSquare(axisEnd + (axisDirection * (size * 2f)), axisOtherDirection1, axisOtherDirection2, size);
 
-			for(int i = 0; i < 4; i++)
-			{
-				resultsBuffer.Add(baseSquare[i]);
-				resultsBuffer.Add(baseSquare[i + 1]);
-				resultsBuffer.Add(baseSquareEnd[i + 1]);
-				resultsBuffer.Add(baseSquareEnd[i]);
-			}
-		}
+            resultsBuffer.Add(baseSquare.bottomLeft);
+            resultsBuffer.Add(baseSquare.topLeft);
+            resultsBuffer.Add(baseSquare.bottomRight);
+            resultsBuffer.Add(baseSquare.topRight);
 
-		Square GetBaseSquare(Vector3 axisEnd, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size)
-		{
-			Square square;
-			Vector3 offsetUp = ((axisOtherDirection1 * size) + (axisOtherDirection2 * size));
-			Vector3 offsetDown = ((axisOtherDirection1 * size) - (axisOtherDirection2 * size));
-			//These arent really the proper directions, as in the bottomLeft isnt really at the bottom left...
-			square.bottomLeft = axisEnd + offsetDown;
-			square.topLeft = axisEnd + offsetUp;
-			square.bottomRight = axisEnd - offsetDown;
-			square.topRight = axisEnd - offsetUp;
-			return square;
-		}
+            resultsBuffer.Add(baseSquareEnd.bottomLeft);
+            resultsBuffer.Add(baseSquareEnd.topLeft);
+            resultsBuffer.Add(baseSquareEnd.bottomRight);
+            resultsBuffer.Add(baseSquareEnd.topRight);
 
-		void SetCircles(AxisInfo axisInfo, AxisVectors axisVectors)
-		{
-			axisVectors.Clear();
+            for (int i = 0; i < 4; i++)
+            {
+                resultsBuffer.Add(baseSquare[i]);
+                resultsBuffer.Add(baseSquare[i + 1]);
+                resultsBuffer.Add(baseSquareEnd[i + 1]);
+                resultsBuffer.Add(baseSquareEnd[i]);
+            }
+        }
 
-			if(type == TransformType.Rotate)
-			{
-				float circleLength = handleLength * GetDistanceMultiplier();
-				AddCircle(target.position, axisInfo.xDirection, circleLength, axisVectors.x);
-				AddCircle(target.position, axisInfo.yDirection, circleLength, axisVectors.y);
-				AddCircle(target.position, axisInfo.zDirection, circleLength, axisVectors.z);
-				AddCircle(target.position, (target.position - transform.position).normalized, circleLength, axisVectors.all, false);
-			}
-		}
+        Square GetBaseSquare(Vector3 axisEnd, Vector3 axisOtherDirection1, Vector3 axisOtherDirection2, float size)
+        {
+            Square square;
+            Vector3 offsetUp = ((axisOtherDirection1 * size) + (axisOtherDirection2 * size));
+            Vector3 offsetDown = ((axisOtherDirection1 * size) - (axisOtherDirection2 * size));
+            //These arent really the proper directions, as in the bottomLeft isnt really at the bottom left...
+            square.bottomLeft = axisEnd + offsetDown;
+            square.topLeft = axisEnd + offsetUp;
+            square.bottomRight = axisEnd - offsetDown;
+            square.topRight = axisEnd - offsetUp;
+            return square;
+        }
 
-		void AddCircle(Vector3 origin, Vector3 axisDirection, float size, List<Vector3> resultsBuffer, bool depthTest = true)
-		{
-			Vector3 up = axisDirection.normalized * size;
-			Vector3 forward = Vector3.Slerp(up, -up, .5f);
-			Vector3 right = Vector3.Cross(up, forward).normalized * size;
+        void SetCircles(AxisInfo axisInfo, AxisVectors axisVectors)
+        {
+            axisVectors.Clear();
 
-			Matrix4x4 matrix = new Matrix4x4();
+            if (type == TransformType.Rotate)
+            {
+                float circleLength = handleLength * GetDistanceMultiplier();
+                AddCircle(target.position, axisInfo.xDirection, circleLength, axisVectors.x);
+                AddCircle(target.position, axisInfo.yDirection, circleLength, axisVectors.y);
+                AddCircle(target.position, axisInfo.zDirection, circleLength, axisVectors.z);
+                AddCircle(target.position, (target.position - transform.position).normalized, circleLength, axisVectors.all, false);
+            }
+        }
 
-			matrix[0] = right.x;
-			matrix[1] = right.y;
-			matrix[2] = right.z;
+        void AddCircle(Vector3 origin, Vector3 axisDirection, float size, List<Vector3> resultsBuffer, bool depthTest = true)
+        {
+            Vector3 up = axisDirection.normalized * size;
+            Vector3 forward = Vector3.Slerp(up, -up, .5f);
+            Vector3 right = Vector3.Cross(up, forward).normalized * size;
 
-			matrix[4] = up.x;
-			matrix[5] = up.y;
-			matrix[6] = up.z;
+            Matrix4x4 matrix = new Matrix4x4();
 
-			matrix[8] = forward.x;
-			matrix[9] = forward.y;
-			matrix[10] = forward.z;
+            matrix[0] = right.x;
+            matrix[1] = right.y;
+            matrix[2] = right.z;
 
-			Vector3 lastPoint = origin + matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)));
-			Vector3 nextPoint = Vector3.zero;
-			float multiplier = 360f / circleDetail;
+            matrix[4] = up.x;
+            matrix[5] = up.y;
+            matrix[6] = up.z;
 
-			Plane plane = new Plane((transform.position - target.position).normalized, target.position);
+            matrix[8] = forward.x;
+            matrix[9] = forward.y;
+            matrix[10] = forward.z;
 
-			for(var i = 0; i < circleDetail + 1; i++)
-			{
-				nextPoint.x = Mathf.Cos((i * multiplier) * Mathf.Deg2Rad);
-				nextPoint.z = Mathf.Sin((i * multiplier) * Mathf.Deg2Rad);
-				nextPoint.y = 0;
+            Vector3 lastPoint = origin + matrix.MultiplyPoint3x4(new Vector3(Mathf.Cos(0), 0, Mathf.Sin(0)));
+            Vector3 nextPoint = Vector3.zero;
+            float multiplier = 360f / circleDetail;
 
-				nextPoint = origin + matrix.MultiplyPoint3x4(nextPoint);
+            Plane plane = new Plane((transform.position - target.position).normalized, target.position);
 
-				if(!depthTest || plane.GetSide(lastPoint))
-				{
-					resultsBuffer.Add(lastPoint);
-					resultsBuffer.Add(nextPoint);
-				}
+            for (var i = 0; i < circleDetail + 1; i++)
+            {
+                nextPoint.x = Mathf.Cos((i * multiplier) * Mathf.Deg2Rad);
+                nextPoint.z = Mathf.Sin((i * multiplier) * Mathf.Deg2Rad);
+                nextPoint.y = 0;
 
-				lastPoint = nextPoint;
-			}
-		}
+                nextPoint = origin + matrix.MultiplyPoint3x4(nextPoint);
 
-		void DrawLines(List<Vector3> lines, Color color)
-		{
-			GL.Begin(GL.LINES);
-			GL.Color(color);
+                if (!depthTest || plane.GetSide(lastPoint))
+                {
+                    resultsBuffer.Add(lastPoint);
+                    resultsBuffer.Add(nextPoint);
+                }
 
-			for(int i = 0; i < lines.Count; i += 2)
-			{
-				GL.Vertex(lines[i]);
-				GL.Vertex(lines[i + 1]);
-			}
+                lastPoint = nextPoint;
+            }
+        }
 
-			GL.End();
-		}
+        void DrawLines(List<Vector3> lines, Color color)
+        {
+            GL.Begin(GL.LINES);
+            GL.Color(color);
 
-		void DrawTriangles(List<Vector3> lines, Color color)
-		{
-			GL.Begin(GL.TRIANGLES);
-			GL.Color(color);
+            for (int i = 0; i < lines.Count; i += 2)
+            {
+                GL.Vertex(lines[i]);
+                GL.Vertex(lines[i + 1]);
+            }
 
-			for(int i = 0; i < lines.Count; i += 3)
-			{
-				GL.Vertex(lines[i]);
-				GL.Vertex(lines[i + 1]);
-				GL.Vertex(lines[i + 2]);
-			}
+            GL.End();
+        }
 
-			GL.End();
-		}
+        void DrawTriangles(List<Vector3> lines, Color color)
+        {
+            GL.Begin(GL.TRIANGLES);
+            GL.Color(color);
 
-		void DrawSquares(List<Vector3> lines, Color color)
-		{
-			GL.Begin(GL.QUADS);
-			GL.Color(color);
+            for (int i = 0; i < lines.Count; i += 3)
+            {
+                GL.Vertex(lines[i]);
+                GL.Vertex(lines[i + 1]);
+                GL.Vertex(lines[i + 2]);
+            }
 
-			for(int i = 0; i < lines.Count; i += 4)
-			{
-				GL.Vertex(lines[i]);
-				GL.Vertex(lines[i + 1]);
-				GL.Vertex(lines[i + 2]);
-				GL.Vertex(lines[i + 3]);
-			}
+            GL.End();
+        }
 
-			GL.End();
-		}
+        void DrawSquares(List<Vector3> lines, Color color)
+        {
+            GL.Begin(GL.QUADS);
+            GL.Color(color);
 
-		void DrawCircles(List<Vector3> lines, Color color)
-		{
-			GL.Begin(GL.LINES);
-			GL.Color(color);
+            for (int i = 0; i < lines.Count; i += 4)
+            {
+                GL.Vertex(lines[i]);
+                GL.Vertex(lines[i + 1]);
+                GL.Vertex(lines[i + 2]);
+                GL.Vertex(lines[i + 3]);
+            }
 
-			for(int i = 0; i < lines.Count; i += 2)
-			{
-				GL.Vertex(lines[i]);
-				GL.Vertex(lines[i + 1]);
-			}
+            GL.End();
+        }
 
-			GL.End();
-		}
+        void DrawCircles(List<Vector3> lines, Color color)
+        {
+            GL.Begin(GL.LINES);
+            GL.Color(color);
 
-		void SetMaterial()
-		{
-			if(lineMaterial == null)
-			{
-				lineMaterial = new Material(Shader.Find("Custom/Lines"));
-				#region Shader code
-				/*
+            for (int i = 0; i < lines.Count; i += 2)
+            {
+                GL.Vertex(lines[i]);
+                GL.Vertex(lines[i + 1]);
+            }
+
+            GL.End();
+        }
+
+        void SetMaterial()
+        {
+            if (lineMaterial == null)
+            {
+                lineMaterial = new Material(Shader.Find("Custom/Lines"));
+                #region Shader code
+                /*
 				Shader "Custom/Lines"
 				{
 					SubShader
@@ -670,8 +684,8 @@ namespace RuntimeGizmos
 					}
 				}
 				*/
-				#endregion
-			}
-		}
-	}
+                #endregion
+            }
+        }
+    }
 }
