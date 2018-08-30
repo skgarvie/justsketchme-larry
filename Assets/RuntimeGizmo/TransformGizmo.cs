@@ -237,14 +237,16 @@ namespace RuntimeGizmos
                 if (Physics.Raycast(myCamera.ScreenPointToRay(Input.mousePosition), out hitInfo))
                 {
                     if (!interactionLayers.Contains(hitInfo.transform.gameObject.layer)) return;
+                    if (hitInfo.transform.gameObject.layer == 9) return;
 
                     var oldTarget = target;
                     if(hitInfo.transform != target)
                     {
-                        if(oldTarget)
+                        if(oldTarget && oldTarget.GetComponent<JointGizmo>())
                             oldTarget.GetComponent<JointGizmo>().jointController.DeSelectJoint();
                         target = hitInfo.transform;
-                        target.GetComponent<JointGizmo>().jointController.SelectJoint();
+                        if(target.GetComponent<JointGizmo>())
+                            target.GetComponent<JointGizmo>().jointController.SelectJoint();
                     }
                 }
             }
