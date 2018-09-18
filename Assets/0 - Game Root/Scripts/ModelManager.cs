@@ -45,6 +45,7 @@ public class ModelManager : MonoBehaviour {
 
         _mannequinModel.SetActive(true);
         _currentSpawnedModel = _mannequinModel;
+        UpdateHighlightJoints();
     }
 
     public void SwitchToFemale()
@@ -60,6 +61,7 @@ public class ModelManager : MonoBehaviour {
 
         _femaleModel.SetActive(true);
         _currentSpawnedModel = _femaleModel;
+        UpdateHighlightJoints();
     }
 
     public void SwitchToMale()
@@ -75,13 +77,19 @@ public class ModelManager : MonoBehaviour {
 
         _maleModel.SetActive(true);
         _currentSpawnedModel = _maleModel;
+        UpdateHighlightJoints();
     }
 
     public void ToggleHighlightedJoints()
     {
         _showingJoints = !_showingJoints;
+        UpdateHighlightJoints();
+    }
+
+    private void UpdateHighlightJoints()
+    {
         var joints = _currentSpawnedModel.GetComponentsInChildren<InteractionGizmo>();
-        foreach(var joint in joints)
+        foreach (var joint in joints)
         {
             joint.ToggleHighlighter(_showingJoints);
         }
