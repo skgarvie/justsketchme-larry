@@ -16,6 +16,8 @@ public class ModelManager : MonoBehaviour {
     private GameObject _femaleModel;
     private GameObject _maleModel;
 
+    private bool _showingJoints = true;
+
     public void Awake()
     {
         SwitchToFemale();
@@ -73,6 +75,16 @@ public class ModelManager : MonoBehaviour {
 
         _maleModel.SetActive(true);
         _currentSpawnedModel = _maleModel;
+    }
+
+    public void ToggleHighlightedJoints()
+    {
+        _showingJoints = !_showingJoints;
+        var joints = _currentSpawnedModel.GetComponentsInChildren<InteractionGizmo>();
+        foreach(var joint in joints)
+        {
+            joint.ToggleHighlighter(_showingJoints);
+        }
     }
 
 }

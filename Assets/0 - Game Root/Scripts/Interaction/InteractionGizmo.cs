@@ -20,13 +20,20 @@ public class InteractionGizmo : MonoBehaviour {
 		
 	}
 
+    public void ToggleHighlighter(bool show)
+    {
+        highlighter.gameObject.SetActive(show);
+    }
+
     private void OnMouseOver()
     {
-        highlighter.MouseOver();
+        if (highlighter.gameObject.activeSelf)
+            highlighter.MouseOver();
     }
 
     private void OnMouseExit()
     {
-        highlighter.MouseExit();
+        if (highlighter.gameObject.activeSelf)
+            highlighter.MouseExit();
     }
 }

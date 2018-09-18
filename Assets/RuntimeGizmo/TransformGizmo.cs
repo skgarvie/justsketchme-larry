@@ -8,6 +8,7 @@ namespace RuntimeGizmos
     [RequireComponent(typeof(Camera))]
     public class TransformGizmo : MonoBehaviour
     {
+        //TODO: rename this
         public TransformSpace space = TransformSpace.Global;
         public TransformType type = TransformType.Move;
         public TransformPivot pivot = TransformPivot.Pivot;
