@@ -3,7 +3,12 @@ guid: ad2c68a1594dc3e49a7fdd95b2e581ea
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - m_MannequinPrefab: {instanceID: 0}
+  - m_FemalePrefab: {fileID: 1902005838571006, guid: a4c623ef674de4e70b3c8b929dbad2aa,
+      type: 2}
+  - m_MalePrefab: {fileID: 1849270364017810, guid: 815d42a2b24ff4b9c84e3530f8770a84,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
