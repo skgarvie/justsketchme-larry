@@ -31,6 +31,11 @@ public class InteractionGizmo : MonoBehaviour {
             highlighter.MouseOver();
     }
 
+    private void OnMouseDown()
+    {
+        GameObject.FindObjectOfType<ModelManager>().StoreState();
+    }
+
     private void OnMouseExit()
     {
         if (highlighter.gameObject.activeSelf)

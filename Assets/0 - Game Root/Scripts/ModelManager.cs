@@ -19,7 +19,7 @@ public class ModelManager : MonoBehaviour {
     private GameObject _femaleModel;
     private GameObject _maleModel;
 
-
+    public List<List<Quaternion>> _previousSteps = new List <List <Quaternion>>();
 
     private bool _showingJoints = true;
 
@@ -120,4 +120,24 @@ public class ModelManager : MonoBehaviour {
         }
     }
 
+    public void StoreState() {
+        List<Quaternion> _localRotations = new List<Quaternion>();
+        foreach (Transform trns in _currentSpawnedModel.GetComponentsInChildren<Transform>()) {
+            _localRotations.Add(trns.localRotation);
+        }
+        _previousSteps.Add(_localRotations);
+    }
+
+    public void Undo() {
+        if (_previousSteps.Count > 0)
+        {
+            int i = 0;
+            foreach (Transform trns in _currentSpawnedModel.GetComponentsInChildren<Transform>())
+            {
+                trns.localRotation = _previousSteps[_previousSteps.Count - 1][i];
+                i++;
+            }
+            _previousSteps.RemoveAt(_previousSteps.Count - 1);
+        }
+    }
 }

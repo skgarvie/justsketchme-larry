@@ -13,7 +13,16 @@ public class CameraController : MonoBehaviour {
 	private float yaw = 0f;
 	private float pitch = 0f;
 
-	void Update ()
+    private Quaternion _startRotation;
+    private Vector3 _startPosition;
+
+    private void Start()
+    {
+        _startRotation = transform.rotation;
+        _startPosition = transform.position;
+    }
+
+    void Update ()
 	{
 		if (Input.GetMouseButton(1) && Input.GetKey(KeyCode.LeftShift) || Input.GetMouseButton(2)) {
 			transform.Translate(-Input.GetAxisRaw("Mouse X") * Time.deltaTime * dragSpeed,   -Input.GetAxisRaw("Mouse Y") * Time.deltaTime * dragSpeed, 0);
@@ -26,10 +35,20 @@ public class CameraController : MonoBehaviour {
 			transform.eulerAngles = new Vector3(pitch, yaw, 0);
 		}
 
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            Reset();
+        }
+
 		transform.Translate(Input.GetAxis("Horizontal")* Time.deltaTime * dragSpeed, 0, 0);
 		transform.Translate(0, Input.GetAxis("Vertical")* Time.deltaTime * dragSpeed, 0);
 
 		//Zoom in and out with Mouse Wheel
 		transform.Translate(0, 0, Input.GetAxis("Mouse ScrollWheel") * zoomSpeed, Space.Self);
 	}
+
+    public void Reset()
+    {
+        transform.position = _startPosition;
+        transform.rotation = _startRotation;
+    }
 }

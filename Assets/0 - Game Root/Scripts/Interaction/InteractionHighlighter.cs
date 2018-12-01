@@ -35,8 +35,8 @@ public class InteractionHighlighter : MonoBehaviour {
 
     public void Select()
     {
-        _material.color = _selectedColor;
-        transform.localScale = _defaultScale * _selectedScale;
+        //_material.color = _selectedColor;
+        //transform.localScale = _defaultScale * _selectedScale;
         _selected = true;
     }
 
@@ -49,7 +49,7 @@ public class InteractionHighlighter : MonoBehaviour {
 
     public void MouseOver()
     {
-        if (_selected) return;
+        //if (_selected) return;
 
         _material.color = _hoverColor;
         transform.localScale = _defaultScale * _hoverScale;
@@ -59,7 +59,7 @@ public class InteractionHighlighter : MonoBehaviour {
 
     public void MouseExit()
     {
-        if (_selected) return;
+        //if (_selected) return;
 
         _material.color = _defaultColor;
         transform.localScale = _defaultScale;
