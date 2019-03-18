@@ -10,6 +10,7 @@ public class ModelManager : MonoBehaviour {
     [SerializeField] private GameObject m_MannequinPrefab;
     [SerializeField] private GameObject m_FemalePrefab;
     [SerializeField] private GameObject m_MalePrefab;
+    [SerializeField] private GameObject m_RobotPrefab;
 
     private enum modelTypes {male, female, mannequin, nun};
 
@@ -18,6 +19,7 @@ public class ModelManager : MonoBehaviour {
     private GameObject _mannequinModel;
     private GameObject _femaleModel;
     private GameObject _maleModel;
+    private GameObject _robotModel;
 
     public List<List<Quaternion>> _previousSteps = new List <List <Quaternion>>();
 
@@ -50,6 +52,23 @@ public class ModelManager : MonoBehaviour {
 
         _mannequinModel.SetActive(true);
         _currentSpawnedModel = _mannequinModel;
+        _currentModelType = modelTypes.mannequin;
+        UpdateHighlightJoints();
+    }
+
+    public void SwitchToRobot(bool reset = false)
+    {
+        if (!_robotModel || reset)
+        {
+            _robotModel = Instantiate(m_RobotPrefab);
+            _robotModel.transform.position = m_SpawnPosition;
+        }
+
+        if (_currentSpawnedModel)
+            _currentSpawnedModel.SetActive(false);
+
+        _robotModel.SetActive(true);
+        _currentSpawnedModel = _robotModel;
         _currentModelType = modelTypes.mannequin;
         UpdateHighlightJoints();
     }
