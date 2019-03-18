@@ -25,7 +25,7 @@ public class ModelManager : MonoBehaviour {
 
     public void Awake()
     {
-        SwitchToFemale();
+        SwitchToMannequin();
     }
 
     void Start () {
