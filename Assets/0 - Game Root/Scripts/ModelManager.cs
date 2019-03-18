@@ -12,7 +12,7 @@ public class ModelManager : MonoBehaviour {
     [SerializeField] private GameObject m_MalePrefab;
     [SerializeField] private GameObject m_RobotPrefab;
 
-    private enum modelTypes {male, female, mannequin, nun};
+    private enum modelTypes {male, female, mannequin, robot, nun};
 
     private GameObject _currentSpawnedModel;
     private modelTypes _currentModelType = modelTypes.nun;
@@ -69,7 +69,7 @@ public class ModelManager : MonoBehaviour {
 
         _robotModel.SetActive(true);
         _currentSpawnedModel = _robotModel;
-        _currentModelType = modelTypes.mannequin;
+        _currentModelType = modelTypes.robot;
         UpdateHighlightJoints();
     }
 
