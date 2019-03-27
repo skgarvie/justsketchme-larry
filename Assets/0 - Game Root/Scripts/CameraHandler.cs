@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RuntimeGizmos;
 
 public class CameraHandler : MonoBehaviour
 {
 
-    private static readonly float PanSpeed = 20f;
+    private static readonly float PanSpeed = 5f;
     private static readonly float ZoomSpeedTouch = 0.1f;
-    private static readonly float ZoomSpeedMouse = 0.5f;
+    private static readonly float ZoomSpeedMouse = 5f;
 
     private static readonly float[] BoundsX = new float[] { -10f, 5f };
-    private static readonly float[] BoundsZ = new float[] { -18f, -4f };
-    private static readonly float[] ZoomBounds = new float[] { 10f, 85f };
+    private static readonly float[] BoundsZ = new float[] { -50f, 50f };
+    private static readonly float[] ZoomBounds = new float[] { 0f, 100f };
 
     private Camera cam;
 
@@ -19,14 +20,20 @@ public class CameraHandler : MonoBehaviour
 
     private bool wasZoomingLastFrame; // Touch mode only
     private Vector2[] lastZoomPositions; // Touch mode only
-
+    private TransformGizmo _transformGizmo;
     void Awake()
     {
         cam = GetComponent<Camera>();
+        _transformGizmo = GetComponent<TransformGizmo>();
     }
 
     void Update()
     {
+        if(_transformGizmo.isTransforming)
+        {
+            return;
+        }
+
         if (Input.touchSupported && Application.platform != RuntimePlatform.WebGLPlayer)
         {
             HandleTouch();

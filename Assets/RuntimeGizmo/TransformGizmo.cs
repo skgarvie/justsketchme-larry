@@ -44,7 +44,7 @@ namespace RuntimeGizmos
         AxisVectors circlesLines = new AxisVectors();
         AxisVectors drawCurrentCirclesLines = new AxisVectors();
 
-        bool isTransforming;
+       public  bool isTransforming;
         float totalScaleAmount;
         Quaternion totalRotationAmount;
         Axis selectedAxis = Axis.None;
