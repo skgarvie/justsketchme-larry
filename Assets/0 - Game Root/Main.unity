@@ -1436,7 +1436,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SpawnPosition: {x: 0, y: 0, z: 0}
-  m_MannequinPrefab: {fileID: 1995192758320998, guid: f42f0031c22434c27ac130d9fde9ec68,
+  m_MannequinPrefab: {fileID: 7770556023227409060, guid: d3921a55cd09f4bab9cf8be56d1c1264,
     type: 3}
   m_FemalePrefab: {fileID: 1902005838571006, guid: a4c623ef674de4e70b3c8b929dbad2aa,
     type: 3}

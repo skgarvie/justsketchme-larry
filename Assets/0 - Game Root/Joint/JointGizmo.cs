@@ -26,11 +26,14 @@ public class JointGizmo : InteractionGizmo
 
     private void AddJointMarker()
     {
-        marker = Instantiate(jointMarkerPrefab, transform);
-				marker.transform.localPosition += offset;
-        var collider = gameObject.AddComponent<SphereCollider>();
-        collider.radius = 0.03f;
-				collider.center += offset;
+        marker = Instantiate(jointMarkerPrefab);
+        marker.transform.parent = transform;
+        //Setting the position after it has been spawned will allow it to retain it's scaling after parenting
+        marker.transform.position = transform.position;
+		marker.transform.localPosition += offset;
+        var sphereCollider = gameObject.AddComponent<SphereCollider>();
+        sphereCollider.radius = 0.03f;
+        sphereCollider.center += offset;
     }
 
 
