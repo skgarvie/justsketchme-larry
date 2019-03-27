@@ -45,11 +45,11 @@ public class ModelManager : MonoBehaviour {
         {
             if(model.name == name)
             {
-                Debug.Log(name + " " + model.name);
                 Destroy(_currentSpawnedModel);
                 _currentSpawnedModel = Instantiate(model);
                 _currentSpawnedModel.name = name;
                 _currentSpawnedModel.transform.position = m_SpawnPosition;
+                _currentSpawnedModel.transform.rotation = new Quaternion(0, 180, 0, 0);
             }
         }
 

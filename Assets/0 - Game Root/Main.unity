@@ -737,7 +737,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.5849056, g: 0.5849056, b: 0.5849056, a: 1}
+  m_BackGroundColor: {r: 0.7264151, g: 0.7264151, b: 0.7264151, a: 1}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -1047,10 +1047,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SpawnPosition: {x: 0, y: 0, z: 0}
   models:
-  - {fileID: 1902005838571006, guid: a4c623ef674de4e70b3c8b929dbad2aa, type: 3}
-  - {fileID: 1849270364017810, guid: 815d42a2b24ff4b9c84e3530f8770a84, type: 3}
-  - {fileID: 1807617446764208, guid: 9e44d7ee09eac4b6ca5927536c046017, type: 3}
   - {fileID: 7770556023227409060, guid: d3921a55cd09f4bab9cf8be56d1c1264, type: 3}
+  - {fileID: 1849270364017810, guid: 815d42a2b24ff4b9c84e3530f8770a84, type: 3}
+  - {fileID: 1902005838571006, guid: a4c623ef674de4e70b3c8b929dbad2aa, type: 3}
   grid: {fileID: 2126297174}
 --- !u!1 &927647327
 GameObject:
