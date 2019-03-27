@@ -855,6 +855,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7770556023227123428}
   - component: {fileID: 7770556023217989518}
+  - component: {fileID: 7025091820601263}
   m_Layer: 0
   m_Name: WoodenLarry
   m_TagString: Untagged
@@ -869,8 +870,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7770556023227409060}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -0.62, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7770556023227114794}
@@ -878,7 +879,7 @@ Transform:
   - {fileID: 7770556023227025270}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &7770556023217989518
 Animator:
   serializedVersion: 3
@@ -898,6 +899,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &7025091820601263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7770556023227409060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f34f3d77fe6b4aff8148f9f17715c7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonSprite: {fileID: 21300000, guid: 7f127ba8ad5364e68aae56f747b952ca, type: 3}
 --- !u!1 &7770556023227413604
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,21 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ModelManager : MonoBehaviour {
 
 
     [SerializeField] private Vector3 m_SpawnPosition;
     [Header("Prefabs")]
-    [SerializeField] private GameObject m_MannequinPrefab;
-    [SerializeField] private GameObject m_FemalePrefab;
-    [SerializeField] private GameObject m_MalePrefab;
-    [SerializeField] private GameObject m_RobotPrefab;
-
-    private enum modelTypes {male, female, mannequin, robot, nun};
+    [SerializeField] List<GameObject> models;
+    [SerializeField] Transform grid;
 
     private GameObject _currentSpawnedModel;
-    private modelTypes _currentModelType = modelTypes.nun;
+   
     private GameObject _mannequinModel;
     private GameObject _femaleModel;
     private GameObject _maleModel;
@@ -27,101 +24,41 @@ public class ModelManager : MonoBehaviour {
 
     public void Awake()
     {
-        SwitchToMannequin();
+        foreach(GameObject model in models)
+        {
+            GameObject button = new GameObject(model.name);
+            button.AddComponent<Image>().sprite = model.GetComponent<Model>().buttonSprite;
+            button.AddComponent<Button>().onClick.AddListener(() => SwitchTo(model.name));
+            button.transform.parent = grid;
+
+        }
     }
 
-    void Start () {
-
-	}
-
-
-    void Update () {
-
-	}
-
-    public void SwitchToMannequin(bool reset = false)
+    void Start()
     {
-        if(!_mannequinModel || reset)
+        SwitchTo(models[0].name);
+    }
+
+    public void SwitchTo(string name)
+    {
+        foreach(GameObject model in models)
         {
-            _mannequinModel = Instantiate(m_MannequinPrefab);
-            _mannequinModel.transform.position = m_SpawnPosition;
+            if(model.name == name)
+            {
+                Debug.Log(name + " " + model.name);
+                Destroy(_currentSpawnedModel);
+                _currentSpawnedModel = Instantiate(model);
+                _currentSpawnedModel.name = name;
+                _currentSpawnedModel.transform.position = m_SpawnPosition;
+            }
         }
 
-        if(_currentSpawnedModel)
-            _currentSpawnedModel.SetActive(false);
-
-        _mannequinModel.SetActive(true);
-        _currentSpawnedModel = _mannequinModel;
-        _currentModelType = modelTypes.mannequin;
         UpdateHighlightJoints();
     }
 
-    public void SwitchToRobot(bool reset = false)
+    public void Reset()
     {
-        if (!_robotModel || reset)
-        {
-            _robotModel = Instantiate(m_RobotPrefab);
-            _robotModel.transform.position = m_SpawnPosition;
-        }
-
-        if (_currentSpawnedModel)
-            _currentSpawnedModel.SetActive(false);
-
-        _robotModel.SetActive(true);
-        _currentSpawnedModel = _robotModel;
-        _currentModelType = modelTypes.robot;
-        UpdateHighlightJoints();
-    }
-
-    public void SwitchToFemale(bool reset = false)
-    {
-        if (!_femaleModel || reset)
-        {
-            _femaleModel = Instantiate(m_FemalePrefab);
-            _femaleModel.transform.position = m_SpawnPosition;
-        }
-
-        if(_currentSpawnedModel)
-            _currentSpawnedModel.SetActive(false);
-
-        _femaleModel.SetActive(true);
-        _currentSpawnedModel = _femaleModel;
-        _currentModelType = modelTypes.female;
-        UpdateHighlightJoints();
-    }
-
-    public void SwitchToMale(bool reset = false)
-    {
-        if (!_maleModel || reset)
-        {
-            _maleModel = Instantiate(m_MalePrefab);
-            _maleModel.transform.position = m_SpawnPosition;
-        }
-
-        if (_currentSpawnedModel)
-            _currentSpawnedModel.SetActive(false);
-
-        _maleModel.SetActive(true);
-        _currentSpawnedModel = _maleModel;
-        _currentModelType = modelTypes.male;
-        UpdateHighlightJoints();
-    }
-
-    public void mekGud () {
-      var wut = _currentSpawnedModel;
-      Destroy(_currentSpawnedModel);
-
-      switch (_currentModelType) {
-        case modelTypes.female:
-          SwitchToFemale(true);
-          break;
-        case modelTypes.male:
-          SwitchToMale(true);
-          break;
-        case modelTypes.mannequin:
-          SwitchToMannequin(true);
-          break;
-      }
+        SwitchTo(_currentSpawnedModel.name);
     }
 
     public void ToggleHighlightedJoints()
